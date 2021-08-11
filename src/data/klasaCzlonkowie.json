@@ -1,0 +1,16 @@
+[{"id" : 1,
+  "nazwisko" : "Jerzy Kowalski",
+  "numer" : "1"
+},
+
+{"id" : 2,
+  "nazwisko" : "Janusz Kwiatkowski",
+  "numer" : "2"
+},
+
+{"id" : 3,
+  "nazwisko" : "Alicja Piątek",
+  "numer" : "3"
+}
+
+]
