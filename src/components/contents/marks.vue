@@ -80,18 +80,127 @@
         <div v-if="getLogon"class="w3-row-padding">
           <div class="w3-col m12">
             <div class="w3-card w3-round w3-white">
-              <div class="w3-container w3-padding">
-                <h6 class="w3-opacity">Witaj {{powitanieNazwisko}} w dzienniku elektronicznym.</h6>
-                <p class="">W panelu górnym możesz przejść do dziennika obecności lub wyświetlić oceny.</p>
-                <p class="">Możesz w panelu również zajrzeć do konfiguracji konta.</p>
-                <p class="">Powodzenia !!!</p>
+                <h5> Przeglądanie ocen </h5>
+                <br/>
+                <div v-if="czyNauczyciel()">
+                  <label> Wybierz przedmiot: </label>
+                  <select id="idprzedmiot" @blur="getPrzedmiot($event)">
+                    <option selected>---</option>
+                    <option v-for="(przedmiot, index) in przedmioty()" :value="przedmiot.id_przedmiot">{{przedmiot.nazwa_przedmiotu}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <label> Wybierz ucznia: </label>
+                  <select id="iduczen" @blur="getUczen($event)">
+                    <option selected>---</option>
+                    <option v-for="(uczen, index) in klasaCzlonkowie()" :value="uczen.id_uczen">{{uczen.nazwisko}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <button type="button" class="w3-button w3-theme" @click="wyswietlOcenyAc();"> Wyszukaj </button>
+                  <button type="button" class="w3-button w3-theme" @click="dodajOcena();"> Dodaj ocenę </button>
+                  <br/>
+                  <br/>
+                  <div v-if="czydodajOcena">
+                    <label> Wybierz przedmiot: </label>
+                    <select id="idprzedmiot2" @blur="getPrzedmiot($event)">
+                      <option selected>---</option>
+                      <option v-for="(przedmiot, index) in przedmioty()" :value="przedmiot.id_przedmiot">{{przedmiot.nazwa_przedmiotu}}</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <label> Wybierz ucznia: </label>
+                    <select id="iduczen2" @blur="getUczen($event)">
+                      <option selected>---</option>
+                      <option v-for="(uczen, index) in klasaCzlonkowie()" :value="uczen.id_uczen">{{uczen.nazwisko}}</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <label>Wybierz ocenę</label>
+                    <select id="idocena">
+                      <option value="6">Celujący</option>
+                      <option value="5">Bardzo dobry</option>
+                      <option value="4">Dobry</option>
+                      <option value="3">Dostateczny</option>
+                      <option value="2">Dopuszczający</option>
+                      <option value="1">Niedostateczny</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <button type="button" class="w3-button w3-theme" @click="dodajOcenaAc();"> OK </button>
+                    <br>
+                    <!-- Alert Box -->
+                      <div v-if="dodanoOcena" class="w3-container w3-display-container w3-round w3-theme-l4 w3-border w3-theme-border w3-margin-bottom w3-hide-small">
+                        <span onclick="this.parentElement.style.display='none'" class="w3-button w3-theme-l3 w3-display-topright">
+                          <i class="fa fa-remove"></i>
+                        </span>
+                        <p>Możesz dodać kolejną ocenę.</p>
+                      </div>
+                  </div>
+                  <br/>
+                  <br/>
+
+                  <div v-if="czyWyswietlacTabela">
+                    <table class="w3-table-all">
+                      <thead>
+                        <th> Lp. </th>
+                        <th> Przedmiot </th>
+                        <th> Data </th>
+                        <th> Ocena </th>
+                        <th> Ocena słownie </th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(ocena, index) in wyswietlOceny()">
+                          <td>{{index+1}}</td>
+                          <td> {{ocena.nazwa_przedmiotu}} </td>
+                          <td> {{formatDate(ocena.data)}} </td>
+                          <td> {{ocena.waga}} </td>
+                          <td> {{ocena.nazwa_oceny}} </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div v-else>
+                  <label> Wybierz przedmiot: </label>
+                  <select id="idprzedmiot" @change="getPrzedmiot($event)">
+                    <option v-for="(przedmiot, index) in przedmioty()" :value="przedmiot.id_przedmiot">{{przedmiot.nazwa_przedmiotu}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <label> Wybierz nauczyciela: </label>
+                  <select id="iduczen" @change="getNauczyciel($event)">
+                    <option v-for="(nauczyciel, index) in klasaNauczyciele()" :value="nauczyciel.id_nauczyciel">{{nauczyciel.nazwisko}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <button type="button" class="w3-button w3-theme" @click="wyswietlOcenyAc();"> Wyszukaj </button>
+                  <br/>
+                  <div v-if="czyWyswietlacTabela">
+                    <table class="w3-table-all">
+                      <thead>
+                        <th> Lp. </th>
+                        <th> Przedmiot </th>
+                        <th> Data </th>
+                        <th> Ocena </th>
+                        <th> Ocena słownie </th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(ocena, index) in wyswietlOceny()">
+                          <td>{{index+1}}</td>
+                          <td> {{ocena.nazwa_przedmiotu}} </td>
+                          <td> {{formatDate(ocena.data)}} </td>
+                          <td> {{ocena.waga}} </td>
+                          <td> {{ocena.nazwa_oceny}} </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-          <!-- <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-          <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button> -->
 
         <div v-else class="w3-container w3-card w3-white w3-round w3-margin">
           <h2 class="w3-text-teal">Logowanie</h2>
@@ -144,14 +253,16 @@
 import store from "vuex";
 import { mapActions } from "vuex";
 export default {
-  name: 'home',
-  data () {
-    return{
-      kolumny:'m7'
-    }
-  },
+  name: 'marks',
+  data() {
+            return {
+                czyWyswietlacTabela: false,
+                czydodajOcena: false,
+                kolumny: 'm7',
+                dodanoOcena: false,
+            };
+        },
   computed: {
-
     getLogon() {
       let session='';
       function showCookie(name) {
@@ -167,7 +278,6 @@ export default {
       }
       return false;
     };
-
     if (showCookie("PHPSESSID")!==false && session==''){
       this.$store.getters.getProfil;
       this.$store.getters.getProfile;
@@ -187,11 +297,6 @@ export default {
       return false
     }
   },
-
-  powitanieNazwisko() {
-    return this.$store.state.profil[0].imie + " " + this.$store.state.profil[0].nazwisko
-  },
-
 
     profileAvatar() {
       return this.$store.getters.profile.path
@@ -221,6 +326,11 @@ export default {
     //Metoda zwracająca dane do wyświetlenia accordion
     accordion: function() {
       return this.$store.getters.accordion
+    },
+
+    przedmioty: function () {
+      this.$store.getters.getPrzedmioty
+      return this.$store.getters.przedmioty
     },
     //Zwraca członków klasy danego ucznia
     klasaCzlonkowie: function() {
@@ -258,6 +368,13 @@ export default {
 
     klasy: function() {
       return this.$store.getters.klasy
+    },
+
+    wyswietlOceny: function(){
+      return this.$store.getters.wyswietlOceny
+    },
+    dodajOcena: function(){
+      this.czydodajOcena=!this.czydodajOcena;
     },
     //Metoda wyświetlająca prawidłowo datę
     formatDate: function (deadline){
@@ -304,6 +421,45 @@ export default {
     getKlasaWydarzeniaAc: function (e) {
       this.getKlasaWydarzeniaAction({
         id_klasa: e.target.value
+      });
+    },
+
+    ...mapActions(["getPrzedmiotAction"]),
+    getPrzedmiot: function (e) {
+      this.getPrzedmiotAction({
+        id_przedmiot: e.target.value
+      });
+    },
+
+    ...mapActions(["getNauczycielAction"]),
+    getNauczyciel: function (e) {
+      this.getNauczycielAction({
+        id_nauczyciel: e.target.value
+      });
+    },
+
+    ...mapActions(["wyswietlOcenyAction"]),
+    wyswietlOcenyAc: function (e) {
+      this.czyWyswietlacTabela=true;
+      this.wyswietlOcenyAction();
+    },
+
+    ...mapActions(["getUczenAction"]),
+    getUczen: function (e) {
+      this.getUczenAction({
+        id_uczen: e.target.value,
+      });
+    },
+
+    ...mapActions(["dodajOcenaAction"]),
+    dodajOcenaAc: function () {
+      this.dodanoOcena=true;
+      this.dodajOcenaAction({
+        id_przedmiot: document.getElementById('idprzedmiot2').value,
+        id_uczen: document.getElementById('iduczen2').value,
+        waga: document.getElementById('idocena').value,
+        data: new Date(),
+        id_nauczyciel: this.$store.state.profil[0].id_uzytkownik
       });
     },
 
@@ -372,5 +528,8 @@ export default {
  }
  span {
    margin-right : 10px;
+ }
+ table {
+   margin-top: 30px;
  }
 </style>

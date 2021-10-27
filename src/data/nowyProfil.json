@@ -1,0 +1,12 @@
+[{"id_uzytkownik" : 0,
+  "imie" : "",
+  "nazwisko" :"",
+  "email" : "",
+  "telefon": 0,
+  "status" : "",
+  "pokrewienstwo": "",
+  "id_relacja": 0,
+  "id_klasa": 0,
+  "id_konto": 0,
+  "path": "/w3images/avatar2.png"
+}]

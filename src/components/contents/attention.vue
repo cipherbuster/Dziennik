@@ -76,23 +76,72 @@
       <!-- Middle Column -->
 
       <div class="w3-col" :class="kolumny">
-
         <div v-if="getLogon"class="w3-row-padding">
           <div class="w3-col m12">
             <div class="w3-card w3-round w3-white">
               <div class="w3-container w3-padding">
-                <h6 class="w3-opacity">Witaj {{powitanieNazwisko}} w dzienniku elektronicznym.</h6>
-                <p class="">W panelu górnym możesz przejść do dziennika obecności lub wyświetlić oceny.</p>
-                <p class="">Możesz w panelu również zajrzeć do konfiguracji konta.</p>
-                <p class="">Powodzenia !!!</p>
+                <h5> Przeglądanie uwag </h5>
+                <br/>
+                <div v-if="czyNauczyciel()">
+                  <label> Wybierz ucznia: </label>
+                  <br/>
+                  <select id="uwagiUczen" @input="getUczenNauczyciel($event)">
+                    <option selected>---</option>
+                    <option v-for="(uczen, index) in uczenNauczyciel()" :value="uczen.id_uczen">{{uczen.imie}} {{uczen.nazwisko}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                </div>
+                <button type="button" class="w3-button w3-theme" @click="wyszukajUwagAc();"> Wyszukaj </button>
+                <button v-if="czyNauczyciel()" type="button" class="w3-button w3-theme" @click="dodajUwaga();"> Dodaj uwagę </button>
+                <div v-if="czyNauczyciel()&&dodajUwagaBoolean">
+                  <br/>
+                  <br/>
+                  <h6> Dodawanie uwagi: </h6>
+                  <label> Wybierz ucznia: </label>
+                  <br/>
+                  <select id="uwagiUczen2" @input="getUczenNauczyciel2($event)">
+                    <option selected>---</option>
+                    <option v-for="(uczen, index) in uczenNauczyciel2()" :value="uczen.id_uczen">{{uczen.imie}} {{uczen.nazwisko}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <label> Treść uwagi: </label>
+                  <br/>
+                  <br/>
+                  <textarea rows="10" cols="50" maxlength="1000" @blur="getTrescUwagi($event)" placeholer="Tutaj wpisz treść uwagi. Maksymalnie 1000 znaków.">
+                  </textarea>
+                  <br/>
+                  <br/>
+                  <button type="button" class="w3-button w3-theme" @click="dodajUwagaAc();"> Zatwierdź </button>
+                  <br/>
+                  <!-- Alert Box -->
+                    <div v-if="dodanoUwaga" class="w3-container w3-display-container w3-round w3-theme-l4 w3-border w3-theme-border w3-margin-bottom w3-hide-small">
+                      <span onclick="this.parentElement.style.display='none'" class="w3-button w3-theme-l3 w3-display-topright">
+                        <i class="fa fa-remove"></i>
+                      </span>
+                      <p>Możesz dodać kolejną uwagę.</p>
+                    </div>
+                </div>
+                <div v-if="czyWyswietlacUwagi" v-for="(uwaga, index) in uwagi()" class="w3-container w3-card w3-white w3-round w3-margin"><br>
+                  <img src="/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
+                  <span class="w3-right w3-opacity">{{elapsedTime(uwaga.data)}}</span>
+                  <h4>{{uwaga.imie}} {{uwaga.nazwisko}}</h4><br>
+                  <h4>{{formatDate(uwaga.data)}}</h4><br>
+                  <hr class="w3-clear">
+                  <p>{{uwaga.tresc}}</p>
+                  <div v-if="czyNieprzeczytanaOpiekun(uwaga.potwierdzenie)">
+                    <label> Potwierdź przeczytanie uwagi: </label>
+                    <input type="checkbox" :value="uwaga.id_uwagi" @input="potwierdzeniePrzeczytaniaAc($event)" class="w3-btn w3-white w3-border w3-border-teal w3-round-large">
+                  </div>
+                  <div v-else>
+                    <p> Uwaga {{trescpotwierdzenia(uwaga.potwierdzenie)}}.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-          <!-- <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-          <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button> -->
-
         <div v-else class="w3-container w3-card w3-white w3-round w3-margin">
           <h2 class="w3-text-teal">Logowanie</h2>
           <p class="w3-serif">
@@ -107,6 +156,7 @@
             </form>
           </p>
         </div>
+
       <!-- End Middle Column -->
       </div>
 
@@ -144,14 +194,16 @@
 import store from "vuex";
 import { mapActions } from "vuex";
 export default {
-  name: 'home',
+  name: 'messages',
   data () {
-    return{
-      kolumny:'m7'
+    return {
+      czyWyswietlacUwagi: false,
+      dodajUwagaBoolean: false,
+      kolumny:'m7',
+      dodanoUwaga: false,
     }
   },
   computed: {
-
     getLogon() {
       let session='';
       function showCookie(name) {
@@ -167,7 +219,6 @@ export default {
       }
       return false;
     };
-
     if (showCookie("PHPSESSID")!==false && session==''){
       this.$store.getters.getProfil;
       this.$store.getters.getProfile;
@@ -187,11 +238,6 @@ export default {
       return false
     }
   },
-
-  powitanieNazwisko() {
-    return this.$store.state.profil[0].imie + " " + this.$store.state.profil[0].nazwisko
-  },
-
 
     profileAvatar() {
       return this.$store.getters.profile.path
@@ -239,6 +285,23 @@ export default {
       }
     },
 
+    czyDyrektorAdmin: function() {
+      if (this.$store.state.profil[0].status == 'dyrektor' || this.$store.state.profil[0].status == 'admin'){
+        this.kolumny = 'm12'
+        return true
+      }else {
+        return false
+      }
+    },
+
+    czyNieprzeczytanaOpiekun: function(uwaga) {
+      if (this.$store.state.profil[0].status == 'opiekun' && uwaga == 0){
+        return true
+      }else {
+        return false
+      }
+    },
+
     czyNauczycielOpiekun: function() {
       if (this.$store.state.profil[0].status == 'nauczyciel' || this.$store.state.profil[0].status == 'opiekun'){
         return true
@@ -247,13 +310,51 @@ export default {
       }
     },
 
-    czyDyrektorAdmin: function() {
-      if (this.$store.state.profil[0].status == 'dyrektor' || this.$store.state.profil[0].status == 'admin'){
-        this.kolumny = 'm12'
-        return true
+    trescpotwierdzenia: function(potwierdzenie){
+      if (potwierdzenie == 0){
+        return 'nieprzeczytana'
       }else {
-        return false
+        return 'przeczytana'
       }
+    },
+
+    getUczniowie: function() {
+      this.$store.state.getters.getUczenNauczyciel;
+    },
+
+    getUczenNauczyciel: function(e) {
+      if (this.$store.state.profil[0].status == 'nauczyciel'){
+        this.$store.state.uwagaConfig[0].id_nauczyciel = this.$store.state.profil[0].id_uzytkownik;
+        this.$store.state.uwagaConfig[0].id_uczen = e.target.value;
+      }else if (this.$store.state.profil[0].status == 'opiekun') {
+        this.$store.state.uwagaConfig[0].id_uczen = this.$store.state.profil[0].id_relacja;
+      }else if (this.$store.state.profil[0].status == 'uczen') {
+        this.$store.state.uwagaConfig[0].id_uczen = this.$store.state.profil[0].id_uzytkownik;
+      } else {
+
+      };
+    },
+
+    getUczenNauczyciel2: function(e) {
+      if (this.$store.state.profil[0].status == 'nauczyciel'){
+        this.$store.state.uwagaConfig2[0].id_nauczyciel = this.$store.state.profil[0].id_uzytkownik;
+        this.$store.state.uwagaConfig2[0].id_uczen = e.target.value;
+      }else if (this.$store.state.profil[0].status == 'opiekun') {
+        this.$store.state.uwagaConfig2[0].id_uczen = this.$store.state.profil[0].id_relacja;
+      }else if (this.$store.state.profil[0].status == 'uczen') {
+        this.$store.state.uwagaConfig2[0].id_uczen = this.$store.state.profil[0].id_uzytkownik;
+      } else {
+
+      };
+    },
+
+    dodajUwaga: function () {
+      this.dodajUwagaBoolean = true;
+      this.$store.getters.getUczenNauczyciel2;
+    },
+
+    getTrescUwagi: function (e) {
+      this.$store.state.uwagaTresc[0].tresc=e.target.value;
     },
 
     klasy: function() {
@@ -292,8 +393,21 @@ export default {
       return this.$store.getters.wiadomosci
     },
 
+    uwagi: function () {
+      return this.$store.getters.uwagi
+    },
+
+    uczenNauczyciel: function () {
+      return this.$store.getters.uczenNauczyciel
+    },
+
+    uczenNauczyciel2: function () {
+      return this.$store.getters.uczenNauczyciel
+    },
+
     ...mapActions(["getKlasaCzlonkowieAction"]),
     getKlasaCzlonkowieAc: function (e, klasa) {
+      this.$store.state.klasaConfig[0].id_klasa = e.target.value;
       this.getKlasaCzlonkowieAction({
         id_klasa: e.target.value,
         klasa: klasa
@@ -307,33 +421,40 @@ export default {
       });
     },
 
-   ...mapActions(["wyslijwiadomoscAction"]),
-    wyslijwiadomosc: function ()
-    {
-      var content = document.getElementById('wpiszwiadomosc').innerHTML;
-      var title = document.getElementById('titlewiadomosc').innerHTML;
-      var idnauczyciel = 0;
-      var iduczen = 0;
+    ...mapActions(["wyszukajUwagAction"]),
+    wyszukajUwagAc: function (e, klasa) {
+      this.czyWyswietlacUwagi= !this.czyWyswietlacUwagi;
+      this.wyszukajUwagAction();
+    },
 
-      if (document.getElementById('idnauczyciel') == null){
-        iduczen = document.getElementById('iduczen').value;
-      }else {
-        idnauczyciel = document.getElementById('idnauczyciel').value;
+    ...mapActions(["potwierdzeniePrzeczytaniaAction", "potwierdzeniePrzeczytaniaMutation"]),
+    potwierdzeniePrzeczytaniaAc: function (e, klasa) {
+      var potwierdzenie;
+      if (e.target.checked == true){
+        potwierdzenie = 1
+      } else {
+        potwierdzenie = 0
       };
+      this.potwierdzeniePrzeczytaniaAction({
+        id_uwagi: e.target.value,
+        potwierdzenie: potwierdzenie
+      });
+      this.potwierdzeniePrzeczytaniaMutation({
+        id_uwagi: e.target.value,
+        potwierdzenie: potwierdzenie
+      })
+    },
 
-      if (idnauczyciel == 0){
-        this.wyslijwiadomoscAction({
-              content: content,
-              title: title,
-              id_uczen: iduczen
-            });
-      }else {
-        this.wyslijwiadomoscAction({
-              content: content,
-              title: title,
-              id_nauczyciel: idnauczyciel
-            });
-      };
+   ...mapActions(["dodajUwagaAction"]),
+    dodajUwagaAc: function () {
+      this.dodanoUwaga=true;
+      this.dodajUwagaAction({
+        id_uczen: this.$store.state.uwagaConfig2[0].id_uczen,
+        id_nauczyciel: this.$store.state.uwagaConfig2[0].id_nauczyciel,
+        tresc: this.$store.state.uwagaTresc[0].tresc,
+        data: new Date(),
+        potwierdzenie: 0
+      });
     },
 
   // Accordion

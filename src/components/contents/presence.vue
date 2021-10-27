@@ -26,8 +26,9 @@
           <div class="w3-white">
             <button @click="myFunction('Demo1')" class="w3-button w3-block w3-theme-l1 w3-left-align"><i class="fa fa-circle-o-notch fa-fw w3-margin-right"></i> Klasa </button>
             <div id="Demo1" class="w3-hide w3-container">
-              <select v-if="czyNauczyciel()"  @change="getKlasaCzlonkowieAc($event, 1)">
-                <option v-for="(wartosc, index) in klasy()" :value="wartosc.id_klasa">{{wartosc.nazwa}}</option>
+              <select id="select1" v-if="czyNauczyciel()" @change="getKlasaCzlonkowieAc($event, 1)">
+                <option selected>---</option>
+                <option v-for="(klasa, index) in klasy()" :value="klasa.id_klasa">{{klasa.nazwa}}</option>
               </select>
               <p v-else>{{accordion()[0].klasa}}</p>
               <ul>
@@ -80,18 +81,127 @@
         <div v-if="getLogon"class="w3-row-padding">
           <div class="w3-col m12">
             <div class="w3-card w3-round w3-white">
-              <div class="w3-container w3-padding">
-                <h6 class="w3-opacity">Witaj {{powitanieNazwisko}} w dzienniku elektronicznym.</h6>
-                <p class="">W panelu górnym możesz przejść do dziennika obecności lub wyświetlić oceny.</p>
-                <p class="">Możesz w panelu również zajrzeć do konfiguracji konta.</p>
-                <p class="">Powodzenia !!!</p>
+                <h5> Przeglądanie obecności </h5>
+                <div v-if="czyNauczyciel()">
+                  <label> Wybierz przedmiot: </label>
+                  <select id="idprzedmiot" @blur="getPrzedmiot($event)">
+                    <option selected>---</option>
+                    <option v-for="(przedmiot, index) in przedmioty()" :value="przedmiot.id_przedmiot">{{przedmiot.nazwa_przedmiotu}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <label> Wybierz klasę: </label>
+                  <select id="iduczen" @blur="getKlasy($event)">
+                    <option selected>---</option>
+                    <option v-for="(klasa, index) in klasy()" :value="klasa.id_klasa">{{klasa.nazwa}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <button type="button" class="w3-button w3-theme" @click="wyswietlObecnoscAc();"> Wyszukaj </button>
+                  <button type="button" class="w3-button w3-theme" @click="dodajObecnosc();"> Dodaj obecnosc </button>
+                  <br/>
+                  <br/>
+                  <div v-if="czydodajObecnosc">
+                    <label> Wybierz przedmiot: </label>
+                    <select id="idprzedmiot2" @input="getPrzedmiot($event)">
+                      <option selected>---</option>
+                      <option v-for="(przedmiot, index) in przedmioty()" :value="przedmiot.id_przedmiot">{{przedmiot.nazwa_przedmiotu}}</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <label> Wybierz klasę </label>
+                    <select id="select2" @change="getKlasaCzlonkowieAc($event, 2)">
+                      <option selected>---</option>
+                      <option v-for="(wartosc, index) in klasy()" :value="wartosc.id_klasa">{{wartosc.nazwa}}</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <label> Wybierz ucznia: </label>
+                    <select id="iduczen2" @blur="getUczen($event)">
+                      <option selected>---</option>
+                      <option v-for="(uczen, index) in klasaCzlonkowie2()" :value="uczen.id_uczen">{{uczen.nazwisko}}</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <label> Wybierz status obecności: </label>
+                    <select id="idczyobecny">
+                      <option selected>---</option>
+                      <option value="Obecny">Obecny</option>
+                      <option value="Nieobecny">Nieobecny</option>
+                    </select>
+                    <br/>
+                    <br/>
+                    <button type="button" class="w3-button w3-theme" @click="dodajObecnoscAc();"> OK </button>
+                    <br>
+                    <!-- Alert Box -->
+                      <div v-if="dodanoObecnosc" class="w3-container w3-display-container w3-round w3-theme-l4 w3-border w3-theme-border w3-margin-bottom w3-hide-small">
+                        <span onclick="this.parentElement.style.display='none'" class="w3-button w3-theme-l3 w3-display-topright">
+                          <i class="fa fa-remove"></i>
+                        </span>
+                        <p>Możesz dodać kolejną obecność.</p>
+                      </div>
+                  </div>
+                  <br/>
+                  <br/>
+
+                  <div v-if="czyWyswietlacTabela">
+                    <table class="w3-table-all">
+                      <thead>
+                        <th> Lp. </th>
+                        <th> Przedmiot </th>
+                        <th> Imie i nazwisko </th>
+                        <th> Data </th>
+                        <th> Czy obecny </th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(obecnosc, index) in wyswietlObecnosci()">
+                          <td>{{index+1}}</td>
+                          <td>{{obecnosc.nazwa_przedmiotu}}</td>
+                          <td>{{obecnosc.imie}} {{obecnosc.nazwisko}}</td>
+                          <td>{{formatDate(obecnosc.data)}}</td>
+                          <td>{{obecnosc.czy_obecny}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div v-else>
+                  <label> Wybierz przedmiot: </label>
+                  <select id="idprzedmiot" @input="getPrzedmiot($event)">
+                    <option selected>---</option>
+                    <option v-for="(przedmiot, index) in przedmioty()" :value="przedmiot.id_przedmiot">{{przedmiot.nazwa_przedmiotu}}</option>
+                  </select>
+                  <br/>
+                  <br/>
+                  <button type="button" class="w3-button w3-theme" @click="wyswietlObecnoscUczenAc();"> Wyszukaj </button>
+
+                  <br/>
+                  <br/>
+                  <div v-if="czyWyswietlacTabela">
+                    <table class="w3-table-all">
+                      <thead>
+                        <th> Lp. </th>
+                        <th> Przedmiot </th>
+                        <th> Imie i nazwisko </th>
+                        <th> Data </th>
+                        <th> Czy obecny </th>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(obecnosc, index) in wyswietlObecnosci()">
+                          <td>{{index+1}}</td>
+                          <td>{{obecnosc.nazwa_przedmiotu}}</td>
+                          <td>{{obecnosc.imie}} {{obecnosc.nazwisko}}</td>
+                          <td>{{formatDate(obecnosc.data)}}</td>
+                          <td>{{obecnosc.czy_obecny}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-          <!-- <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-          <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button> -->
 
         <div v-else class="w3-container w3-card w3-white w3-round w3-margin">
           <h2 class="w3-text-teal">Logowanie</h2>
@@ -144,14 +254,16 @@
 import store from "vuex";
 import { mapActions } from "vuex";
 export default {
-  name: 'home',
-  data () {
-    return{
-      kolumny:'m7'
-    }
-  },
+  name: 'presence',
+  data() {
+            return {
+                czyWyswietlacTabela: false,
+                czydodajObecnosc: false,
+                kolumny: 'm7',
+                dodanoObecnosc:false,
+            };
+        },
   computed: {
-
     getLogon() {
       let session='';
       function showCookie(name) {
@@ -167,7 +279,6 @@ export default {
       }
       return false;
     };
-
     if (showCookie("PHPSESSID")!==false && session==''){
       this.$store.getters.getProfil;
       this.$store.getters.getProfile;
@@ -187,11 +298,6 @@ export default {
       return false
     }
   },
-
-  powitanieNazwisko() {
-    return this.$store.state.profil[0].imie + " " + this.$store.state.profil[0].nazwisko
-  },
-
 
     profileAvatar() {
       return this.$store.getters.profile.path
@@ -222,9 +328,25 @@ export default {
     accordion: function() {
       return this.$store.getters.accordion
     },
+
+    przedmioty: function () {
+      this.$store.getters.getPrzedmioty
+      return this.$store.getters.przedmioty
+    },
+
+    obecnosci: function() {
+      this.$store.getters.getObecnosci
+      return this.$store.getters.obecnosci
+    },
+
     //Zwraca członków klasy danego ucznia
     klasaCzlonkowie: function() {
       return this.$store.getters.klasaCzlonkowie
+    },
+
+    //Zwraca członków klasy danego ucznia
+    klasaCzlonkowie2: function() {
+      return this.$store.getters.klasaCzlonkowie2
     },
 
     klasaNauczyciele: function() {
@@ -258,6 +380,13 @@ export default {
 
     klasy: function() {
       return this.$store.getters.klasy
+    },
+
+    wyswietlObecnosci: function(){
+      return this.$store.getters.wyswietlObecnosci
+    },
+    dodajObecnosc: function(){
+      this.czydodajObecnosc=!this.czydodajObecnosc;
     },
     //Metoda wyświetlająca prawidłowo datę
     formatDate: function (deadline){
@@ -307,36 +436,59 @@ export default {
       });
     },
 
-   ...mapActions(["wyslijwiadomoscAction"]),
-    wyslijwiadomosc: function ()
-    {
-      var content = document.getElementById('wpiszwiadomosc').innerHTML;
-      var title = document.getElementById('titlewiadomosc').innerHTML;
-      var idnauczyciel = 0;
-      var iduczen = 0;
-
-      if (document.getElementById('idnauczyciel') == null){
-        iduczen = document.getElementById('iduczen').value;
-      }else {
-        idnauczyciel = document.getElementById('idnauczyciel').value;
-      };
-
-      if (idnauczyciel == 0){
-        this.wyslijwiadomoscAction({
-              content: content,
-              title: title,
-              id_uczen: iduczen
-            });
-      }else {
-        this.wyslijwiadomoscAction({
-              content: content,
-              title: title,
-              id_nauczyciel: idnauczyciel
-            });
-      };
+    ...mapActions(["getPrzedmiotAction"]),
+    getPrzedmiot: function (e) {
+      this.getPrzedmiotAction({
+        id_przedmiot: e.target.value
+      });
     },
 
-  // Accordion
+    ...mapActions(["getNauczycielAction"]),
+    getNauczyciel: function (e) {
+      this.getNauczycielAction({
+        id_nauczyciel: e.target.value
+      });
+    },
+
+    ...mapActions(["getKlasyAction"]),
+    getKlasy: function (e) {
+      this.getKlasyAction({
+        id_klasa: e.target.value
+      });
+    },
+
+    ...mapActions(["wyswietlObecnoscAction"]),
+    wyswietlObecnoscAc: function (e) {
+      this.czyWyswietlacTabela=true;
+      this.wyswietlObecnoscAction();
+    },
+
+    ...mapActions(["wyswietlObecnoscUczenAction"]),
+    wyswietlObecnoscUczenAc: function (e) {
+      this.czyWyswietlacTabela=true;
+      this.wyswietlObecnoscUczenAction();
+    },
+
+    ...mapActions(["getUczenAction"]),
+    getUczen: function (e) {
+      this.getUczenAction({
+        id_uczen: e.target.value,
+      });
+    },
+
+    ...mapActions(["dodajObecnoscAction"]),
+    dodajObecnoscAc: function () {
+      this.dodanoObecnosc = true;
+      this.dodajObecnoscAction({
+        id_przedmiot: document.getElementById('idprzedmiot2').value,
+        id_uczen: document.getElementById('iduczen2').value,
+        czy_obecny: document.getElementById('idczyobecny').value,
+        data: new Date(),
+        id_nauczyciel: this.$store.state.profil[0].id_uzytkownik
+      });
+    },
+
+   // Accordion
     myFunction : function(id) {
       var x = document.getElementById(id);
 
@@ -372,5 +524,8 @@ export default {
  }
  span {
    margin-right : 10px;
+ }
+ table {
+   margin-top: 30px;
  }
 </style>

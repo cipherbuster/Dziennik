@@ -1,44 +1,74 @@
 import navbar from '../components/navbar/navbar';
-import contents from '../components/contents/home';
-import news from '../components/contents/news';
+import home from '../components/contents/home';
+import presence from '../components/contents/presence';
 import configuration from '../components/contents/configuration';
 import messages from '../components/contents/messages';
+import logon from '../components/contents/logon';
+import marks from '../components/contents/marks';
+import attention from '../components/contents/attention';
 
 export default [
 {
     path: '/',
-    name: 'navbar',
+    name: 'home',
     components: {
-      default: navbar,
+      default: home,
       navbar: navbar,
-      contents: contents
+      contents: home
   },
 },
 {
-   path: '/news',
-   name: 'news',
+   path: '/presence',
+   name: 'presence',
    components: {
-     default: news,
+     default: home,
      navbar: navbar,
-     contents: news
+     contents: presence
  },
 },
 {
   path: '/configuration',
-  name: 'news',
+  name: 'configuration',
   components: {
-    default: news,
+    default: home,
     navbar: navbar,
     contents: configuration
-}
+  }
 },
 {
   path: '/messages',
-  name: 'news',
+  name: 'messeges',
   components: {
-    default: news,
+    default: home,
     navbar: navbar,
     contents: messages
+  },
+},
+{
+    path: '/attention',
+    name: 'attention',
+    components: {
+      default: home,
+      navbar: navbar,
+      contents: attention
+  },
+},
+{
+  path: '/logon',
+  name: 'logon',
+  components: {
+    default: home,
+    navbar: navbar,
+    contents: logon
+  },
+},
+{
+  path: '/marks',
+  name: 'marks',
+  components: {
+    default: home,
+    navbar: navbar,
+    contents: marks
   },
 },
 ];

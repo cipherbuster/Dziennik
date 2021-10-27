@@ -24,7 +24,7 @@
         <!-- Accordion -->
         <div class="w3-card w3-round">
           <div class="w3-white">
-            <button @click="myFunction('Demo1')" class="w3-button w3-block w3-theme-l1 w3-left-align"><i class="fa fa-circle-o-notch fa-fw w3-margin-right"></i> Klasa </button>
+            <button @click="myFunction('Demo1')" class="w3-button w3-block w3-theme-l1 w3-left-align"> Klasa </button>
             <div id="Demo1" class="w3-hide w3-container">
               <select v-if="czyNauczyciel()"  @change="getKlasaCzlonkowieAc($event, 1)">
                 <option v-for="(wartosc, index) in klasy()" :value="wartosc.id_klasa">{{wartosc.nazwa}}</option>
@@ -34,7 +34,7 @@
                 <li v-for="(czlonek, index) in klasaCzlonkowie()">{{czlonek.numer}}. {{czlonek.nazwisko}} </li>
               </ul>
             </div>
-            <button v-if="!czyNauczyciel()" @click="myFunction('Demo2')" class="w3-button w3-block w3-theme-l1 w3-left-align"><i class="fa fa-calendar-check-o fa-fw w3-margin-right"></i> Oceny </button>
+            <button v-if="!czyNauczyciel()" @click="myFunction('Demo2')" class="w3-button w3-block w3-theme-l1 w3-left-align"> Oceny </button>
             <div v-if="!czyNauczyciel()" id="Demo2" class="w3-hide w3-container">
                 <p>
                   <ul>
@@ -42,7 +42,7 @@
                   </ul>
                 </p>
             </div>
-            <button @click="myFunction('Demo3')" class="w3-button w3-block w3-theme-l1 w3-left-align"><i class="fa fa-users fa-fw w3-margin-right"></i> Wydarzenia </button>
+            <button @click="myFunction('Demo3')" class="w3-button w3-block w3-theme-l1 w3-left-align"> Wydarzenia </button>
             <div id="Demo3" class="w3-hide w3-container">
            <div class="w3-row-padding">
              <p> {{accordion().wydarzenia}}</p>
@@ -77,22 +77,14 @@
 
       <div class="w3-col" :class="kolumny">
 
-        <div v-if="getLogon"class="w3-row-padding">
-          <div class="w3-col m12">
-            <div class="w3-card w3-round w3-white">
-              <div class="w3-container w3-padding">
-                <h6 class="w3-opacity">Witaj {{powitanieNazwisko}} w dzienniku elektronicznym.</h6>
-                <p class="">W panelu górnym możesz przejść do dziennika obecności lub wyświetlić oceny.</p>
-                <p class="">Możesz w panelu również zajrzeć do konfiguracji konta.</p>
-                <p class="">Powodzenia !!!</p>
-              </div>
-            </div>
-          </div>
+        <div v-if="getLogon" class="w3-container w3-card w3-white w3-round w3-margin">
+          <h2 class="w3-text-teal">Logowanie</h2>
+          <p class="w3-serif">
+            <form action="./wylogowanie.php" method="post">
+              <input id="logonbox" type="submit" name="submit" value="Wyloguj się!" class="w3-button w3-white w3-border w3-border-teal w3-round-large w3-hover-teal">
+            </form>
+          </p>
         </div>
-
-          <!-- <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>  Like</button>
-          <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>  Comment</button> -->
-
         <div v-else class="w3-container w3-card w3-white w3-round w3-margin">
           <h2 class="w3-text-teal">Logowanie</h2>
           <p class="w3-serif">
@@ -144,14 +136,13 @@
 import store from "vuex";
 import { mapActions } from "vuex";
 export default {
-  name: 'home',
+  name: 'logon',
   data () {
-    return{
-      kolumny:'m7'
+    return {
+      kolumny: 'm7'
     }
   },
   computed: {
-
     getLogon() {
       let session='';
       function showCookie(name) {
@@ -167,7 +158,6 @@ export default {
       }
       return false;
     };
-
     if (showCookie("PHPSESSID")!==false && session==''){
       this.$store.getters.getProfil;
       this.$store.getters.getProfile;
@@ -177,7 +167,6 @@ export default {
       this.$store.getters.getOceny;
       this.$store.getters.getWiadomosci;
       this.$store.getters.getklasaNauczyciele;
-      this.$store.getters.getConfig;
       this.$store.getters.getUczenNauczyciel;
       session=showCookie("PHPSESSID");
       return true
@@ -187,11 +176,6 @@ export default {
       return false
     }
   },
-
-  powitanieNazwisko() {
-    return this.$store.state.profil[0].imie + " " + this.$store.state.profil[0].nazwisko
-  },
-
 
     profileAvatar() {
       return this.$store.getters.profile.path

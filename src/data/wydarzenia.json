@@ -1,14 +1,5 @@
-[{"id" : 1,
-  "data" : "AUG 18 2021 15:04:01 GMT+0200",
-  "rodzaj" : "Wakacje"
-},
-
-{"id" : 2,
-  "data" : "AUG 15 2021 15:04:01 GMT+0200",
-  "rodzaj" : "Zebranie"
-},
-{"id" : 3,
-  "data" : "AUG 11 2022 15:04:01 GMT+0200",
-  "rodzaj" : "Wycieczka"
+[{"id" : 0,
+  "data" : "",
+  "rodzaj" : ""
 }
 ]
